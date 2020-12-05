@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import { View } from 'react-native';
@@ -38,24 +38,41 @@ interface Product {
 const Cart: React.FC = () => {
   const { increment, decrement, products } = useCart();
 
-  function handleIncrement(id: string): void {
-    // TODO
-  }
+  const handleIncrement = useCallback(
+    (id: string) => {
+      increment(id);
+    },
+    [increment],
+  );
 
-  function handleDecrement(id: string): void {
-    // TODO
-  }
+  const handleDecrement = useCallback(
+    (id: string) => {
+      decrement(id);
+    },
+    [decrement],
+  );
 
   const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-
-    return formatValue(0);
+    const total = products.reduce(
+      (accumulator, product) => {
+        accumulator.count += product.price * product.quantity;
+        return accumulator;
+      },
+      { count: 0 },
+    );
+    return formatValue(total.count);
   }, [products]);
 
   const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
+    const quantity = products.reduce(
+      (accumulator, product) => {
+        accumulator.count += product.quantity;
+        return accumulator;
+      },
+      { count: 0 },
+    );
 
-    return 0;
+    return quantity.count;
   }, [products]);
 
   return (
@@ -63,12 +80,12 @@ const Cart: React.FC = () => {
       <ProductContainer>
         <ProductList
           data={products}
-          keyExtractor={item => item.id}
+          keyExtractor={(item: any) => item.id}
           ListFooterComponent={<View />}
           ListFooterComponentStyle={{
             height: 80,
           }}
-          renderItem={({ item }: { item: Product }) => (
+          renderItem={({ item }: any) => (
             <Product>
               <ProductImage source={{ uri: item.image_url }} />
               <ProductTitleContainer>
